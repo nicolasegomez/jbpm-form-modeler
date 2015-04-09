@@ -98,8 +98,7 @@ public class FormModelerFormProvider extends AbstractFormProvider {
             inputs.put("task", task);
 
             // Adding forms to context while forms are'nt available on marshaller classloader
-            FormRenderContext context = formRenderContextManager.newContext(form, inputs, outputs);
-            context.setDeploymentId( task.getTaskData().getDeploymentId() );
+            FormRenderContext context = formRenderContextManager.newContext(form, task.getTaskData().getDeploymentId(), inputs, outputs);
             formRenderContentMarshaller.addContentMarshaller(context.getUID(), (ContentMarshallerContext) renderContext.get("marshallerContext"));
 
             String status = task.getTaskData().getStatus().name();
@@ -124,8 +123,7 @@ public class FormModelerFormProvider extends AbstractFormProvider {
             ctx.put("process", process);
 
             // Adding forms to context while forms are'nt available on marshaller classloader
-            FormRenderContext context = formRenderContextManager.newContext(form, ctx, new HashMap<String, Object>());
-            context.setDeploymentId( process.getDeploymentId() );
+            FormRenderContext context = formRenderContextManager.newContext(form, process.getDeploymentId(), ctx, new HashMap<String, Object>());
             formRenderContentMarshaller.addContentMarshaller(context.getUID(), (ContentMarshallerContext) renderContext.get("marshallerContext"));
 
             result = context.getUID();
