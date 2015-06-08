@@ -1,6 +1,7 @@
 /target
 /local
 /overlays
+copies.sh
 
 # Eclipse, Netbeans and IntelliJ files
 /.*
