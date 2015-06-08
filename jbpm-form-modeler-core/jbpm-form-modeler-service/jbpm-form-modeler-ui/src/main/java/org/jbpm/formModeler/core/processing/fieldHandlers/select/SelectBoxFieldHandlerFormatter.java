@@ -46,16 +46,25 @@ public class SelectBoxFieldHandlerFormatter extends DefaultFieldHandlerFormatter
 
         SelectValuesProvider provider = (SelectValuesProvider) CDIBeanLocator.getBeanByNameOrType(field.getCustomFieldType());
 
-        Map<String, String> fieldRange = provider.getSelectOptions(field, (String)value, formRenderContextManager.getRootContext(fieldName), getLocale());
+        Map<String, Object> fieldRange = provider.getSelectOptions(field, value, formRenderContextManager.getRootContext(fieldName), getLocale());
 
         if (fieldRange == null || fieldRange.isEmpty()) return;
 
-        String text = fieldRange.get(value);
+        //String text = fieldRange.get(value);
+        String text = getKeyFromValue(fieldRange,value);
 
         if (StringUtils.isEmpty(text)) return;
 
         setAttribute("value", text);
         renderFragment("output");
+    }
+    
+    private String getKeyFromValue(Map<String,Object> map, Object value) {
+    	for (String key : map.keySet()) {
+			if (map.get(key).equals(value))
+				return key;
+		}
+    	return "";
     }
 
     public void renderInput(HttpServletRequest request) throws FormatterException {
@@ -84,18 +93,19 @@ public class SelectBoxFieldHandlerFormatter extends DefaultFieldHandlerFormatter
 
             SelectValuesProvider provider = (SelectValuesProvider) CDIBeanLocator.getBeanByNameOrType(field.getCustomFieldType());
 
-            Map<String, String> fieldRange = provider.getSelectOptions(field, (String)value, formRenderContextManager.getRootContext(fieldName), getLocale());
+            Map<String, Object> fieldRange = provider.getSelectOptions(field, value, formRenderContextManager.getRootContext(fieldName), getLocale());
 
             if (fieldRange != null && !fieldRange.isEmpty()) {
 
-                String keyValueStr = StringEscapeUtils.escapeHtml(StringUtils.defaultString(value == null ? "" : String.valueOf(value)));
+                //String keyValueStr = StringEscapeUtils.escapeHtml(StringUtils.defaultString(value == null ? "" : getKeyFromValue(fieldRange,value)));
 
                 for (Iterator iter = fieldRange.keySet().iterator(); iter.hasNext();) {
                     Object key = iter.next();
                     setAttribute("key", key);
-                    String valueKey = fieldRange.get(key);
-                    setAttribute("value", valueKey);
-                    if (keyValueStr != null && keyValueStr.equals(key.toString())) {
+                    Object valueKey = fieldRange.get(key);
+                    //setAttribute("value", valueKey);
+                    setAttribute("value", key);
+                    if (value != null && fieldRange.get(key).equals(value)) {
                         renderFragment("outputSelectedOption");
                     } else {
                         renderFragment("outputOption");

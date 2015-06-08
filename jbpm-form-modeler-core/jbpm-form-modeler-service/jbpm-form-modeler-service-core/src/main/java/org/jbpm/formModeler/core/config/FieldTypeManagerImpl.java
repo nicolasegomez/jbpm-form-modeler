@@ -114,6 +114,7 @@ public class FieldTypeManagerImpl implements FieldTypeManager {
         iconsMappings.put("File", "fieldTypes/file.png");
         iconsMappings.put("SelectBox", "fieldTypes/select.png");
         iconsMappings.put("RadioGroup", "fieldTypes/radio.png");
+        iconsMappings.put("CheckboxList", "fieldTypes/radio.png");
 
         hiddenFieldTypesCodes.add("InputTextPrimitiveByte");
         hiddenFieldTypesCodes.add("InputTextPrimitiveShort");

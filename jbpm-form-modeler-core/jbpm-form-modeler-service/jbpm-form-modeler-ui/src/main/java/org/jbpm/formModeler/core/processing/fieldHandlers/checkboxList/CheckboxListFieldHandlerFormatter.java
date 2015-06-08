@@ -1,4 +1,4 @@
-package org.jbpm.formModeler.core.processing.fieldHandlers.radio;
+package org.jbpm.formModeler.core.processing.fieldHandlers.checkboxList;
 
 import org.apache.commons.lang.StringUtils;
 import org.jbpm.formModeler.api.client.FormRenderContextManager;
@@ -20,8 +20,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-@Named("RadioGroupFieldHandlerFormatter")
-public class RadioGroupFieldHandlerFormatter extends DefaultFieldHandlerFormatter {
+@Named("CheckboxListFieldHandlerFormatter")
+public class CheckboxListFieldHandlerFormatter extends DefaultFieldHandlerFormatter {
     public static final String PARAM_MODE = "show_mode";
     public static final String MODE_SHOW = "show";
     public static final String MODE_INPUT = "input";
@@ -51,15 +51,17 @@ public class RadioGroupFieldHandlerFormatter extends DefaultFieldHandlerFormatte
 
         Map<String, Object> fieldRange = provider.getSelectOptions(field, (String)value, formRenderContextManager.getRootContext(fieldName), getLocale());
 
-        if (fieldRange == null || fieldRange.isEmpty()) return;
+        if (fieldRange == null || fieldRange.isEmpty() || value == null) return;
 
-        //String text = fieldRange.get(value);
-        String text = getKeyFromValue(fieldRange, value);
-        
-        if (StringUtils.isEmpty(text)) return;
+        for (Object selectedValue : (List)value) {
+            String text = getKeyFromValue(fieldRange, selectedValue);
+            
+            if (StringUtils.isEmpty(text)) return;
 
-        setAttribute("value", text);
-        renderFragment("output");
+            setAttribute("value", text);
+            renderFragment("output");
+		}
+
     }
 
     public void renderInput(HttpServletRequest request) throws FormatterException {
@@ -82,7 +84,12 @@ public class RadioGroupFieldHandlerFormatter extends DefaultFieldHandlerFormatte
 
         Boolean isReadonly = paramsReader.isFieldReadonly() || field.getReadonly();
 
-        String keyValueStr = getKeyFromValue(fieldRange, value);
+        String keyValueStr = "";
+        if (value != null) {
+	        for (Object valueItem : (List) value) {
+	        	keyValueStr += getKeyFromValue(fieldRange, valueItem);
+			}
+        }
 
         setAttribute("name", fieldName);
         setAttribute("uid", uid);
@@ -90,8 +97,8 @@ public class RadioGroupFieldHandlerFormatter extends DefaultFieldHandlerFormatte
         if (isReadonly) setAttribute("readonly", isReadonly);
         renderFragment("outputStart");
 
-        if (field.getVerticalAlignment()) renderVertical(field, fieldName, paramsReader.isFieldReadonly(), uid, fieldRange, StringUtils.defaultString((String) value));
-        else renderHorizontal(field, fieldName, paramsReader.isFieldReadonly(), uid, fieldRange, StringUtils.defaultString((String) value));
+        if (field.getVerticalAlignment()) renderVertical(field, fieldName, paramsReader.isFieldReadonly(), uid, fieldRange, (List)value);
+        else renderHorizontal(field, fieldName, paramsReader.isFieldReadonly(), uid, fieldRange, (List)value);
 
         renderFragment("outputEnd");
 
@@ -105,7 +112,7 @@ public class RadioGroupFieldHandlerFormatter extends DefaultFieldHandlerFormatte
     	return "";
     }
 
-    protected void renderHorizontal(Field field, String fieldName, Boolean isReadonly, String uid, Map<String, Object> fieldRange, String value) {
+    protected void renderHorizontal(Field field, String fieldName, Boolean isReadonly, String uid, Map<String, Object> fieldRange, List value) {
         int index = 0;
 
         int maxElements = getMaxElements(fieldRange, field);
@@ -118,7 +125,10 @@ public class RadioGroupFieldHandlerFormatter extends DefaultFieldHandlerFormatte
             //String keyValue = fieldRange.get(key);
             String keyValue = key;
             renderFragment("startCell");
-            renderRadio(key, keyValue, key.equals(value), fieldName, uid + FormProcessor.CUSTOM_NAMESPACE_SEPARATOR + index++, isReadonly, field);
+            boolean checked = false;
+            if (value!=null)
+            	checked = value.contains(fieldRange.get(key));
+            renderRadio(key, keyValue, checked, fieldName, uid + FormProcessor.CUSTOM_NAMESPACE_SEPARATOR + index++, isReadonly, field);
             renderFragment("endCell");
             cellCount ++;
             if (cellCount == maxElements) {
@@ -128,7 +138,7 @@ public class RadioGroupFieldHandlerFormatter extends DefaultFieldHandlerFormatte
         }
     }
 
-    protected void renderVertical(Field field, String fieldName, Boolean isReadonly, String uid, Map<String, Object> fieldRange, String value) {
+    protected void renderVertical(Field field, String fieldName, Boolean isReadonly, String uid, Map<String, Object> fieldRange, List value) {
 
         int maxElements = getMaxElements(fieldRange, field);
 
@@ -158,7 +168,10 @@ public class RadioGroupFieldHandlerFormatter extends DefaultFieldHandlerFormatte
 
                 if (column.size() > row) {
                     String key = column.get(row);
-                    renderRadio(key, key, key.equals(value), fieldName, uid + FormProcessor.CUSTOM_NAMESPACE_SEPARATOR + index++, isReadonly, field);
+                    boolean checked = false;
+                    if (value!=null)
+                    	checked = value.contains(fieldRange.get(key));
+                    renderRadio(key, key, checked, fieldName, uid + FormProcessor.CUSTOM_NAMESPACE_SEPARATOR + index++, isReadonly, field);
                 }
                 renderFragment("endCell");
             }
@@ -176,7 +189,7 @@ public class RadioGroupFieldHandlerFormatter extends DefaultFieldHandlerFormatte
         setAttribute("onChangeScript", field.getOnChangeScript());
         setAttribute("cssStyle", field.getCssStyle());
         setAttribute("styleclass", field.getStyleclass());
-        renderFragment("outputRadio");
+        renderFragment("outputCheckbox");
     }
 
     protected int getMaxElements(Map<String, Object> fieldRange, Field field) {

@@ -8,5 +8,5 @@ import java.util.Map;
 
 public interface SelectValuesProvider {
     String getIdentifier();
-    Map<String, String> getSelectOptions(Field field, String value, FormRenderContext renderContext, Locale locale);
+    Map<String, Object> getSelectOptions(Field field, Object value, FormRenderContext renderContext, Locale locale);
 }
