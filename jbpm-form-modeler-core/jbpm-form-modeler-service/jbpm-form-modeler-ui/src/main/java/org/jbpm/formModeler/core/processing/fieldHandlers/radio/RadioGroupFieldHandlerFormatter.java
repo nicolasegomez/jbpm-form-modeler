@@ -49,7 +49,7 @@ public class RadioGroupFieldHandlerFormatter extends DefaultFieldHandlerFormatte
 
         SelectValuesProvider provider = (SelectValuesProvider) CDIBeanLocator.getBeanByNameOrType(field.getCustomFieldType());
 
-        Map<String, Object> fieldRange = provider.getSelectOptions(field, (String)value, formRenderContextManager.getRootContext(fieldName), getLocale());
+        Map<String, Object> fieldRange = provider.getSelectOptions(field, value, formRenderContextManager.getRootContext(fieldName), getLocale());
 
         if (fieldRange == null || fieldRange.isEmpty()) return;
 

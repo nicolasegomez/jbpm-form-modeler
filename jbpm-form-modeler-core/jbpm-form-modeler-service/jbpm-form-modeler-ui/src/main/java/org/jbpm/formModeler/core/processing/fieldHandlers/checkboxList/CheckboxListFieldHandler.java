@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.jbpm.formModeler.api.client.FormRenderContext;
+import org.jbpm.formModeler.api.client.FormRenderContextManager;
 import org.jbpm.formModeler.api.model.Field;
 import org.jbpm.formModeler.core.config.SelectValuesProvider;
 import org.jbpm.formModeler.core.processing.fieldHandlers.InputTextFieldHandler;
@@ -13,7 +16,10 @@ import org.jbpm.formModeler.service.cdi.CDIBeanLocator;
 
 @Named("org.jbpm.formModeler.core.processing.fieldHandlers.checkboxList.CheckboxListFieldHandler")
 public class CheckboxListFieldHandler extends InputTextFieldHandler {
-	
+    
+	@Inject
+    private FormRenderContextManager formRenderContextManager;
+    
 	/**
      * Determine the list of class types this field can generate. That is, normally,
      * a field can generate multiple outputs (an input text can generate Strings,
@@ -36,7 +42,7 @@ public class CheckboxListFieldHandler extends InputTextFieldHandler {
         String[] paramValue = (String[]) parametersMap.get(inputName + "[]");
         if (paramValue == null || paramValue.length == 0) return null;
         SelectValuesProvider provider = (SelectValuesProvider) CDIBeanLocator.getBeanByNameOrType(field.getCustomFieldType());
-        Map<String, Object> fieldRange = provider.getSelectOptions(field, previousValue, null, null);
+        Map<String, Object> fieldRange = provider.getSelectOptions(field, previousValue, formRenderContextManager.getRootContext(inputName), null);
         
         if ("".equals(paramValue[0]))
              return null;

@@ -4,15 +4,20 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formModeler.api.client.FormRenderContextManager;
 import org.jbpm.formModeler.api.model.Field;
 import org.jbpm.formModeler.core.config.SelectValuesProvider;
 import org.jbpm.formModeler.core.processing.fieldHandlers.InputTextFieldHandler;
 import org.jbpm.formModeler.service.cdi.CDIBeanLocator;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 @Named("org.jbpm.formModeler.core.processing.fieldHandlers.select.SelectBoxFieldHandler")
 public class SelectBoxFieldHandler extends InputTextFieldHandler {
+	
+	@Inject
+    private FormRenderContextManager formRenderContextManager;
 	
 	/**
      * Determine the list of class types this field can generate. That is, normally,
@@ -37,7 +42,7 @@ public class SelectBoxFieldHandler extends InputTextFieldHandler {
         if (paramValue == null || paramValue.length == 0) return null;
         SelectValuesProvider provider = (SelectValuesProvider) CDIBeanLocator.getBeanByNameOrType(field.getCustomFieldType());
 
-        Map<String, Object> fieldRange = provider.getSelectOptions(field, previousValue, null, null);
+        Map<String, Object> fieldRange = provider.getSelectOptions(field, previousValue, formRenderContextManager.getRootContext(field.getFieldName()), null);
         
         if ("".equals(paramValue[0]))
              return null;
